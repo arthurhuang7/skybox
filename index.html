@@ -141,41 +141,10 @@
 
         requestAnimationFrame(animate);
     }
-    function initGui() {
-        var listener = new THREE.AudioListener();
-        var audio = new THREE.Audio(listener);
-        var audioLoader = new THREE.AudioLoader();
-        gui = {
-            back:function () {
-                window.location.href="./index.html";
-            }
-        };
-		gui2 = {
-            play:function () {
-                audioLoader.load('./mu/city.mp3', function(AudioBuffer) {
-                audio.setBuffer(AudioBuffer);
-                audio.setLoop(true); //是否循環
-                audio.setVolume(0.5); //音量
-                audio.play(); //play播放
-            });
-            }
-        };
-        gui3= {
-            stop:function () {
-                audio.stop(); //stop停止
-            }
-        };
-        var datGui = new dat.GUI();
-        datGui.add(gui, "back");
-        datGui.add(gui2, "play");
-        datGui.add(gui3, "stop");
-
-
-    }
+    
     function draw() {
         //兼容性判断
         if (!Detector.webgl) Detector.addGetWebGLMessage();
-        initGui();
         initRender();
         initScene();
         initCamera();
