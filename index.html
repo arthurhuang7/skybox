@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Threejs使用环境贴图创建反光效果</title>
+    <title>city</title>
     <style type="text/css">
         html, body {
             margin: 0;
@@ -15,14 +15,17 @@
     </style>
 </head>
 
-<body onload="draw();">
+<body>
 </body>
-<script src="https://cdn.bootcss.com/three.js/91/three.min.js"></script>
-<script src="/lib/js/utils/ImageUtils.js"></script>
-<script src="/lib/js/controls/OrbitControls.js"></script>
-<script src="/lib/js/libs/stats.min.js"></script>
-<script src="https://cdn.bootcss.com/dat-gui/0.7.1/dat.gui.min.js"></script>
-<script src="/lib/js/Detector.js"></script>
+<script src="build/three.js"></script>
+<script src="build/three.min.js"></script>
+<script src="examples/js/lights/RectAreaLightUniformsLib.js"></script>
+<script src="examples/js/controls/OrbitControls.js"></script>
+<script src="examples/js/libs/stats.min.js"></script>
+<script src="examples/js/libs/dat.gui.min.js"></script>
+<script src="examples/js/loaders/GLTFLoader.js"></script>
+<script src="examples/js/utils/ImageUtils.js"></script>
+<script src="examples/js/Detector.js"></script>
 
 <script>
     var renderer, camera, scene, gui, light, stats, controls, sphereMesh, sphereMaterial;
@@ -33,7 +36,7 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setClearColor(0xeeeeee);
         renderer.shadowMap.enabled = true;
-        //告诉渲染器需要阴影效果
+        //告訴渲染器需要陰影效果
         document.body.appendChild(renderer.domElement);
     }
 
@@ -43,36 +46,20 @@
     }
 
     function initScene() {
-        //给场景添加天空盒子纹理
+        //場景添加天空盒子
         var cubeTextureLoader = new THREE.CubeTextureLoader();
-        cubeTextureLoader.setPath( '/lib/textures/cube/skybox/' );
-        //六张图片分别是朝前的（posz）、朝后的（negz）、朝上的（posy）、朝下的（negy）、朝右的（posx）和朝左的（negx）。
+        cubeTextureLoader.setCrossOrigin('anonymous');
+        cubeTextureLoader.setPath( './examples/textures/cube/city/' );
+        //六張圖分别是朝前的（posz）、朝後的（negz）、朝上的（posy）、朝下的（negy）、朝右的（posx）和朝左的（negx）。
         var cubeTexture = cubeTextureLoader.load( [
-            'px.jpg', 'nx.jpg',
-            'py.jpg', 'ny.jpg',
-            'pz.jpg', 'nz.jpg'
+            'posx.jpg', 'negx.jpg',
+            'posy.jpg', 'negy.jpg',
+            'posz.jpg', 'negz.jpg'+ "?v=" + (new Date()).toString(), function() {animate();}
         ] );
 
         scene = new THREE.Scene();
 
         scene.background = cubeTexture;
-    }
-
-    //初始化dat.GUI简化试验流程
-    function initGui() {
-        //声明一个保存需求修改的相关数据的对象
-        gui = {
-            changeBg:function () {
-                scene.background = new THREE.CubeTextureLoader()
-                    .setPath( '/lib/textures/cube/pisa/' )
-                    .load( [ 'px.png', 'nx.png', 'py.png', 'ny.png', 'pz.png', 'nz.png' ] );
-
-                sphereMaterial.envMap = scene.background;
-            }
-        };
-        var datGui = new dat.GUI();
-        //将设置属性添加到gui当中，gui.add(对象，属性，最小值，最大值）
-        datGui.add(gui, "changeBg");
     }
 
     function initLight() {
@@ -87,7 +74,7 @@
         light.shadow.camera.left = -10;
         light.shadow.camera.right = 10;
 
-        //告诉平行光需要开启阴影投射
+        //平行光需開啟陰影投射
         light.castShadow = true;
 
         //scene.add(light);
@@ -95,45 +82,37 @@
 
     function initModel() {
 
-        //辅助工具
-        var helper = new THREE.AxesHelper(50);
-        scene.add(helper);
-
-        //添加中间显示的球体
+        //添加中間球體
         var geometry = new THREE.SphereBufferGeometry( 5, 100, 50 );
-        //将纹理的环境纹理设置为scene的背景纹理
+
+        //將背景應到球體上
         sphereMaterial = new THREE.MeshLambertMaterial( { envMap: scene.background } );
         sphereMesh = new THREE.Mesh( geometry, sphereMaterial );
         scene.add( sphereMesh );
     }
-
-    //初始化性能插件
     function initStats() {
         stats = new Stats();
-        document.body.appendChild(stats.dom);
     }
 
     function initControls() {
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
-        //设置控制器的中心点
+        //控制器的中心點
         //controls.target.set( 0, 5, 0 );
-        // 如果使用animate方法时，将此函数删除
         //controls.addEventListener( 'change', render );
-        // 使动画循环使用时阻尼或自转 意思是否有惯性
         controls.enableDamping = true;
-        //动态阻尼系数 就是鼠标拖拽旋转灵敏度
+        //鼠標拖拽旋轉靈敏度
         //controls.dampingFactor = 0.25;
         //是否可以缩放
         controls.enableZoom = true;
-        //是否自动旋转
+        //是否自轉
         controls.autoRotate = false;
         controls.autoRotateSpeed = 0.5;
-        //设置相机距离原点的最远距离
+        //相機距離原點的最近距離
         controls.minDistance = 1;
-        //设置相机距离原点的最远距离
+        //相機距離原點的最遠距离
         controls.maxDistance = 2000;
-        //是否开启右键拖拽
+        //是否開啟右鍵拖曳
         controls.enablePan = true;
     }
 
@@ -141,7 +120,7 @@
 
     }
 
-    //窗口变动触发的函数
+    //窗口變動
     function onWindowResize() {
 
         camera.aspect = window.innerWidth / window.innerHeight;
@@ -154,7 +133,6 @@
         //更新控制器
         render();
 
-        //更新性能插件
         stats.update();
 
         controls.update();
@@ -163,11 +141,40 @@
 
         requestAnimationFrame(animate);
     }
+    function initGui() {
+        var listener = new THREE.AudioListener();
+        var audio = new THREE.Audio(listener);
+        var audioLoader = new THREE.AudioLoader();
+        gui = {
+            back:function () {
+                window.location.href="./index.html";
+            }
+        };
+		gui2 = {
+            play:function () {
+                audioLoader.load('./mu/city.mp3', function(AudioBuffer) {
+                audio.setBuffer(AudioBuffer);
+                audio.setLoop(true); //是否循環
+                audio.setVolume(0.5); //音量
+                audio.play(); //play播放
+            });
+            }
+        };
+        gui3= {
+            stop:function () {
+                audio.stop(); //stop停止
+            }
+        };
+        var datGui = new dat.GUI();
+        datGui.add(gui, "back");
+        datGui.add(gui2, "play");
+        datGui.add(gui3, "stop");
 
+
+    }
     function draw() {
         //兼容性判断
         if (!Detector.webgl) Detector.addGetWebGLMessage();
-
         initGui();
         initRender();
         initScene();
@@ -180,7 +187,7 @@
         animate();
         window.onresize = onWindowResize;
     }
-
+    window.addEventListener("load", draw, false);
 
 </script>
 </html>
